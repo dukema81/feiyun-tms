@@ -1,0 +1,50 @@
+function lookup(p) {
+  p = normPath(p);
+  if (p === '/api/me') return DEMO_ME;
+  if (SNAP[p] !== undefined && SNAP[p] !== null) return SNAP[p];
+  var bare = p.split('?')[0];
+  if (SNAP[bare] !== undefined && SNAP[bare] !== null) return SNAP[bare];
+  var fb = [
+    [/^\/api\/waybills\?/, '/api/waybills'],
+    [/^\/api\/dispatches\?/, '/api/dispatches'],
+    [/^\/api\/trackings\?/, '/api/trackings'],
+    [/^\/api\/customers\?/, '/api/customers'],
+    [/^\/api\/vehicles\?/, '/api/vehicles'],
+    [/^\/api\/drivers\?/, '/api/drivers'],
+    [/^\/api\/routes\?/, '/api/routes'],
+    [/^\/api\/settlements\?/, '/api/settlements'],
+    [/^\/api\/fuel\?/, '/api/fuel'],
+    [/^\/api\/risks\?/, '/api/risks'],
+    [/^\/api\/notices\?/, '/api/notices'],
+    [/^\/api\/policies\?/, '/api/policies']
+  ];
+  for (var i = 0; i < fb.length; i++) {
+    if (fb[i][0].test(p)) return SNAP[fb[i][1]] || {};
+  }
+  var m = p.match(/^\/api\/waybills\/(\d+)$/);
+  if (m) {
+    var hit = ((SNAP['/api/waybills'] || {}).items || []).filter(function (x) { return x.id == m[1]; })[0];
+    if (hit) return Object.assign({}, hit);
+  }
+  m = p.match(/^\/api\/customers\/(\d+)$/);
+  if (m) {
+    var c = ((SNAP['/api/customers'] || {}).items || []).filter(function (x) { return x.id == m[1]; })[0];
+    if (c) return Object.assign({}, c, {waybill_count: 2});
+  }
+  m = p.match(/^\/api\/vehicles\/(\d+)$/);
+  if (m) {
+    var v = ((SNAP['/api/vehicles'] || {}).items || []).filter(function (x) { return x.id == m[1]; })[0];
+    if (v) return Object.assign({}, v);
+  }
+  m = p.match(/^\/api\/drivers\/(\d+)$/);
+  if (m) {
+    var d = ((SNAP['/api/drivers'] || {}).items || []).filter(function (x) { return x.id == m[1]; })[0];
+    if (d) return Object.assign({}, d);
+  }
+  m = p.match(/^\/api\/settlements\/(\d+)$/);
+  if (m) {
+    var s = ((SNAP['/api/settlements'] || {}).items || []).filter(function (x) { return x.id == m[1]; })[0];
+    if (s) return Object.assign({}, s, {waybill_no: 'FY-DEMO'});
+  }
+  return null;
+}
